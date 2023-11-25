@@ -1,5 +1,8 @@
 #include "VoronoiPattern.h"
 
+#include <array>
+#include <ranges>
+
 namespace voronoi {
 
 namespace {
@@ -16,7 +19,7 @@ struct Point {
 
 }  // namespace
 
-Image generateVoronoiPattern(int width, int height, int numCells, PatternType type) {
+Image generateVoronoiPattern(int width, int height, int numCells, PatternType type, bool tile) {
   Image result{width, height};
 
   std::vector<Point> cellCentres;
@@ -33,7 +36,23 @@ Image generateVoronoiPattern(int width, int height, int numCells, PatternType ty
       Point myCell{0, 0};
       int minDistance2 = maxDist;
       for (const auto& cell : cellCentres) {
-        int curDist2 = sqr(x - cell.x) + sqr(y - cell.y);
+        int curDist2;
+        if (tile) {
+          int xDist2 = std::ranges::min(std::array<int, 3>{x - cell.x,
+                                                           x + width - cell.x,
+                                                           x - width - cell.x} |
+                                        std::views::transform(sqr<int>));
+
+          int yDist2 = std::ranges::min(
+              std::array<int, 3>{y - cell.y, y + height - cell.y,
+                                 y - height - cell.y} |
+              std::views::transform(sqr<int>));
+
+          curDist2 = xDist2 + yDist2;
+        } else {
+          curDist2 = sqr(x - cell.x) + sqr(y - cell.y);
+        }
+
         if (curDist2 < minDistance2) {
           myCell = cell;
           minDistance2 = curDist2;
@@ -56,10 +75,22 @@ Image generateVoronoiPattern(int width, int height, int numCells, PatternType ty
           break;
 
         case PatternType::Offset:
+          auto minAbs = [](int a, int b) {
+            return (std::abs(a) < std::abs(b));
+          };
+          int xDist = std::ranges::min(
+              std::array<int, 3>{x - myCell.x, x + width - myCell.x,
+                                 x - width - myCell.x},
+              minAbs);
+          int yDist = std::ranges::min(
+              std::array<int, 3>{y - myCell.y, y + height - myCell.y,
+                                 y - height - myCell.y},
+              minAbs);
+
           result.setPixel(
               x, y,
-              Color(static_cast<float>(x - myCell.x) / static_cast<float>(width),
-                    static_cast<float>(y - myCell.y) / static_cast<float>(height),
+              Color(static_cast<float>(xDist) / static_cast<float>(width),
+                    static_cast<float>(yDist) / static_cast<float>(height),
                     0.0f));
           break;
       }

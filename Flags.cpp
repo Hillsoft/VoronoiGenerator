@@ -12,7 +12,7 @@ namespace {
 void printHelp() {
   std::cout << "Usage:" << std::endl;
   std::cout << "  VoronoiGenerator [--help] <outputFile> <width> <height> "
-               "[--numCells=100] [--type=distance]"
+               "[--numCells=100] [--type=distance] [--tile]"
             << std::endl;
 }
 
@@ -27,8 +27,12 @@ std::optional<Flags> voronoi::parseFlags(int argc, const char** argv) {
   }
 
   // Populate defaults
-  Flags flags{
-      .width = 1024, .height = 1024, .outputFile = "out.bmp", .numCells = 100};
+  Flags flags{.width = 1024,
+              .height = 1024,
+              .outputFile = "out.bmp",
+              .numCells = 100,
+              .patternType = PatternType::Distance,
+              .tile = false};
 
   int currentPosition = 0;
 
@@ -65,6 +69,8 @@ std::optional<Flags> voronoi::parseFlags(int argc, const char** argv) {
           printPatternTypeHelp();
           return std::nullopt;
         }
+      } else if (argName == "tile") {
+        flags.tile = true;
       }
       else {
         std::cout << "Not a valid argument: " << argName << std::endl;

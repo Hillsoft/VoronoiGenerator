@@ -5,6 +5,6 @@
 
 namespace voronoi {
 
-Image generateVoronoiPattern(int width, int height, int numCells, PatternType type);
+Image generateVoronoiPattern(int width, int height, int numCells, PatternType type, bool tile);
 
 } // namespace voronoi

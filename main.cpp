@@ -14,7 +14,7 @@ int main(int argc, const char** argv) {
     const Flags& flags = *m_flags;
 
     Image image =
-        generateVoronoiPattern(flags.width, flags.height, flags.numCells, flags.patternType);
+        generateVoronoiPattern(flags.width, flags.height, flags.numCells, flags.patternType, flags.tile);
 
     std::ofstream ostream(flags.outputFile, std::ios::out | std::ios::binary);
     image.writeBitmapDataToStream(ostream);

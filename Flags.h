@@ -13,6 +13,7 @@ struct Flags {
 	std::string outputFile;
 	int numCells;
   PatternType patternType;
+  bool tile;
 };
 
 std::optional<Flags> parseFlags(int argc, const char** argv);
