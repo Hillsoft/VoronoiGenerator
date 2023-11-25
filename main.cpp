@@ -1,6 +1,10 @@
 #include <iostream>
 
+#include "Flags.h"
+
+using namespace voronoi;
+
 int main(int argc, const char** argv) {
-	std::cout << "Running" << std::endl;
+  Flags flags = parseFlags(argc, argv);
 	return 0;
 }
