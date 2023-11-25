@@ -41,8 +41,8 @@ void writeBitmapHeader(std::ostream& stream, const BitmapHeader& header) {
 
 
 void Image::writeBitmapDataToStream(std::ostream& stream) const {
-  int rowSize = ((3 * height_ + 3) / 4) * 4;
-  int padSize = rowSize - (3 * height_);
+  int rowSize = (3 * width_ + 3) & ~0b11;
+  int padSize = rowSize - (3 * width_);
   char padding[3] = {0, 0, 0};
 
   BitmapHeader header;
