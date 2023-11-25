@@ -11,6 +11,10 @@ struct Color {
         g(0.0),
         r(1.0) {}
 
+  Color(float r, float g, float b) : b(b), g(g), r(r) {}
+
+  Color(float brightness) : b(brightness), g(brightness), r(brightness) {}
+
   void clamp() {
     b = std::min(1.0f, std::max(0.0f, b));
     g = std::min(1.0f, std::max(0.0f, g));
