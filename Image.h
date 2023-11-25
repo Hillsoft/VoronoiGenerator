@@ -9,7 +9,7 @@ struct Color {
   Color()
       : b(0.0),
         g(0.0),
-        r(1.0) {}
+        r(0.0) {}
 
   Color(float r, float g, float b) : b(b), g(g), r(r) {}
 
