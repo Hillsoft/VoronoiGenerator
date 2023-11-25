@@ -6,7 +6,9 @@
 namespace voronoi {
 
 const std::map<std::string_view, PatternType> patternTypeNames{
-    {"distance", PatternType::Distance}, {"centre", PatternType::Centre}};
+    {"distance", PatternType::Distance},
+    {"centre", PatternType::Centre},
+    {"offset", PatternType::Offset}};
 
 void printPatternTypeHelp() {
   std::cout << "Available pattern types are:" << std::endl;

@@ -54,6 +54,14 @@ Image generateVoronoiPattern(int width, int height, int numCells, PatternType ty
                     static_cast<float>(myCell.y) / static_cast<float>(height),
                     0.0f));
           break;
+
+        case PatternType::Offset:
+          result.setPixel(
+              x, y,
+              Color(static_cast<float>(x - myCell.x) / static_cast<float>(width),
+                    static_cast<float>(y - myCell.y) / static_cast<float>(height),
+                    0.0f));
+          break;
       }
     }
   }
