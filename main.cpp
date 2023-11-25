@@ -11,7 +11,7 @@ int main(int argc, const char** argv) {
 
   Image image(flags.width, flags.height);
 
-  std::ofstream ostream(flags.outputFile, std::ios::out, std::ios::binary);
+  std::ofstream ostream(flags.outputFile, std::ios::out | std::ios::binary);
   image.writeBitmapDataToStream(ostream);
 
 	return 0;
