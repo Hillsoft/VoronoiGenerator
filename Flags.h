@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <string>
 
 namespace voronoi {
@@ -11,6 +12,6 @@ struct Flags {
 	int numCells;
 };
 
-Flags parseFlags(int argc, const char** argv);
+std::optional<Flags> parseFlags(int argc, const char** argv);
 
 } // namespace voronoi

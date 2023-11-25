@@ -8,12 +8,19 @@
 using namespace voronoi;
 
 int main(int argc, const char** argv) {
-  Flags flags = parseFlags(argc, argv);
+  std::optional<Flags> m_flags = parseFlags(argc, argv);
 
-  Image image = generateVoronoiPattern(flags.width, flags.height, flags.numCells);
+  if (m_flags.has_value()) {
+    const Flags& flags = *m_flags;
 
-  std::ofstream ostream(flags.outputFile, std::ios::out | std::ios::binary);
-  image.writeBitmapDataToStream(ostream);
+    Image image =
+        generateVoronoiPattern(flags.width, flags.height, flags.numCells);
+
+    std::ofstream ostream(flags.outputFile, std::ios::out | std::ios::binary);
+    image.writeBitmapDataToStream(ostream);
+
+    std::cout << "Done" << std::endl;
+  }
 
 	return 0;
 }
