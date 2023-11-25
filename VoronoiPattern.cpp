@@ -16,7 +16,7 @@ struct Point {
 
 }  // namespace
 
-Image generateVoronoiPattern(int width, int height, int numCells) {
+Image generateVoronoiPattern(int width, int height, int numCells, PatternType type) {
   Image result{width, height};
 
   std::vector<Point> cellCentres;
@@ -30,17 +30,31 @@ Image generateVoronoiPattern(int width, int height, int numCells) {
 
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
+      Point myCell{0, 0};
       int minDistance2 = maxDist;
       for (const auto& cell : cellCentres) {
         int curDist2 = sqr(x - cell.x) + sqr(y - cell.y);
         if (curDist2 < minDistance2) {
+          myCell = cell;
           minDistance2 = curDist2;
         }
       }
 
-      result.setPixel(x, y,
-                      Color(std::sqrt(static_cast<float>(minDistance2)) /
-                            static_cast<float>(width)));
+      switch (type) {
+        case PatternType::Distance:
+          result.setPixel(x, y,
+                          Color(std::sqrt(static_cast<float>(minDistance2)) /
+                                static_cast<float>(width)));
+          break;
+
+        case PatternType::Centre:
+          result.setPixel(
+              x, y,
+              Color(static_cast<float>(myCell.x) / static_cast<float>(width),
+                    static_cast<float>(myCell.y) / static_cast<float>(height),
+                    0.0f));
+          break;
+      }
     }
   }
 

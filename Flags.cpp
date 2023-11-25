@@ -12,7 +12,7 @@ namespace {
 void printHelp() {
   std::cout << "Usage:" << std::endl;
   std::cout << "  VoronoiGenerator [--help] <outputFile> <width> <height> "
-               "[--numCells=100]"
+               "[--numCells=100] [--type=distance]"
             << std::endl;
 }
 
@@ -56,7 +56,17 @@ std::optional<Flags> voronoi::parseFlags(int argc, const char** argv) {
                     << "' of type integer: " << argValue << std::endl;
           return std::nullopt;
         }
-      } else {
+      } else if (argName == "type") {
+        std::optional<PatternType> type = parsePatternType(argValue);
+        if (type.has_value()) {
+          flags.patternType = *type;
+        } else {
+          std::cout << "Not a valid value for '" << argName << "'" << std::endl;
+          printPatternTypeHelp();
+          return std::nullopt;
+        }
+      }
+      else {
         std::cout << "Not a valid argument: " << argName << std::endl;
         return std::nullopt;
       }

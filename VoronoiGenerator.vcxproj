@@ -136,11 +136,13 @@
     <ClCompile Include="Flags.cpp" />
     <ClCompile Include="Image.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="PatternType.cpp" />
     <ClCompile Include="VoronoiPattern.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Flags.h" />
     <ClInclude Include="Image.h" />
+    <ClInclude Include="PatternType.h" />
     <ClInclude Include="VoronoiPattern.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
