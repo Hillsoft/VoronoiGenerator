@@ -39,7 +39,8 @@ Image generateVoronoiPattern(int width, int height, int numCells) {
       }
 
       result.setPixel(x, y,
-                      Color(std::sqrt(static_cast<float>(minDistance2)) / static_cast<float>(width)));
+                      Color(std::sqrt(static_cast<float>(minDistance2)) /
+                            static_cast<float>(width)));
     }
   }
 
