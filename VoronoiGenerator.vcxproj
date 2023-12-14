@@ -146,6 +146,7 @@
     <ClCompile Include="VoronoiPattern.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Assert.h" />
     <ClInclude Include="Flags.h" />
     <ClInclude Include="Image.h" />
     <ClInclude Include="PatternType.h" />
