@@ -174,7 +174,7 @@ Image generateVoronoiPattern(int width, int height, int numCells, PatternType ty
               x, y,
               Color(abs(sqrt(static_cast<float>(minDistance.getDist2())) -
                         sqrt(static_cast<float>(secondDistance.getDist2()))) /
-                    2.0f));
+                    20.0f));
           break;
 
         case PatternType::Offset: {
