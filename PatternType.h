@@ -8,7 +8,8 @@ namespace voronoi {
 enum class PatternType {
   Distance,
   Centre,
-  Offset
+  Offset,
+  OffsetRandomRotation
 };
 
 void printPatternTypeHelp();
