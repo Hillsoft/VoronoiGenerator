@@ -1,6 +1,7 @@
 #include "VoronoiPattern.h"
 
 #include <array>
+#include <compare>
 #include <ranges>
 
 #include "Assert.h"
@@ -33,6 +34,25 @@ struct Point {
   int y;
 };
 
+struct DistanceInfo {
+ public:
+  constexpr DistanceInfo(int xDist2, int yDist2)
+      : xDist2_(xDist2), yDist2_(yDist2), dist2_(xDist2 + yDist2) {}
+
+  constexpr int getXDist2() const { return xDist2_; }
+  constexpr int getYDist2() const { return yDist2_; }
+  constexpr int getDist2() const { return dist2_; }
+
+  constexpr auto operator<=>(const DistanceInfo& other) const {
+    return dist2_ <=> other.dist2_;
+  }
+
+ private:
+  int xDist2_;
+  int yDist2_;
+  int dist2_;
+};
+
 // We divide the image into a grid and each grid cell gets a single cell centre
 std::vector<Point> generateCellCentres(int width, int height, int numCells) {
   std::vector<Point> result;
@@ -55,18 +75,18 @@ std::vector<Point> generateCellCentres(int width, int height, int numCells) {
   return result;
 }
 
-// Returns the nearest cell centre and the square of the distance to that centre
-std::pair<Point, int> getNearsetCellCentre(int width, int height, int numCells,
+// Returns the nearest cell centre and the distance to that centre
+std::pair<Point, DistanceInfo> getNearsetCellCentre(int width, int height, int numCells,
                            std::span<const Point> cellCentres, Point point, bool tile) {
   assert("numCells must match amount of cellCentres",
          cellCentres.size() == sqr(numCells));
 
-  int maxDist2 = sqr(width) + sqr(height);
+  DistanceInfo maxDist{sqr(width), sqr(height)};
 
   int pointGridX = numCells * point.x / width;
   int pointGridY = numCells * point.y / height;
 
-  std::pair<Point, int> best{Point{0, 0}, maxDist2};
+  std::pair<Point, DistanceInfo> best{Point{0, 0}, maxDist};
 
   // We know the nearest cell centre must be in one of the nine nearby grid cells
   for (int gridX = pointGridX - 1; gridX <= pointGridX + 1; gridX++) {
@@ -79,7 +99,7 @@ std::pair<Point, int> getNearsetCellCentre(int width, int height, int numCells,
       int yDist2 = tile ? sqr(wraparoundDist(curCellCentre.y, point.y, height))
                         : sqr(point.y - curCellCentre.y);
 
-      int curDist2 = xDist2 + yDist2;
+      DistanceInfo curDist2{xDist2, yDist2};
 
       if (curDist2 < best.second) {
         best = {curCellCentre, curDist2};
@@ -101,13 +121,13 @@ Image generateVoronoiPattern(int width, int height, int numCells, PatternType ty
 
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
-      auto [myCell, minDistance2] = getNearsetCellCentre(
+      auto [myCell, minDistance] = getNearsetCellCentre(
           width, height, numCells, cellCentres, {x, y}, tile);
 
       switch (type) {
         case PatternType::Distance:
           result.setPixel(x, y,
-                          Color(std::sqrt(static_cast<float>(minDistance2)) /
+                          Color(std::sqrt(static_cast<float>(minDistance.getDist2())) /
                                 static_cast<float>(width)));
           break;
 
@@ -120,22 +140,10 @@ Image generateVoronoiPattern(int width, int height, int numCells, PatternType ty
           break;
 
         case PatternType::Offset:
-          auto minAbs = [](int a, int b) {
-            return (std::abs(a) < std::abs(b));
-          };
-          int xDist = std::ranges::min(
-              std::array<int, 3>{x - myCell.x, x + width - myCell.x,
-                                 x - width - myCell.x},
-              minAbs);
-          int yDist = std::ranges::min(
-              std::array<int, 3>{y - myCell.y, y + height - myCell.y,
-                                 y - height - myCell.y},
-              minAbs);
-
           result.setPixel(
               x, y,
-              Color(static_cast<float>(xDist) / static_cast<float>(width),
-                    static_cast<float>(yDist) / static_cast<float>(height),
+              Color(std::sqrt(static_cast<float>(minDistance.getXDist2())) / static_cast<float>(width),
+                    std::sqrt(static_cast<float>(minDistance.getYDist2())) / static_cast<float>(height),
                     0.0f));
           break;
       }
