@@ -12,6 +12,7 @@ struct Flags {
 	int height;
 	std::string outputFile;
 	int numCells;
+  int distanceScaleFactor;
   PatternType patternType;
   bool tile;
 };

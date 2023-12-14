@@ -112,7 +112,7 @@ std::pair<Point, DistanceInfo> getNearsetCellCentre(int width, int height, int n
 
 }  // namespace
 
-Image generateVoronoiPattern(int width, int height, int numCells, PatternType type, bool tile) {
+Image generateVoronoiPattern(int width, int height, int numCells, PatternType type, bool tile, int distanceScaleFactor) {
   Image result{width, height};
 
   std::vector<Point> cellCentres = generateCellCentres(width, height, numCells);
@@ -126,9 +126,11 @@ Image generateVoronoiPattern(int width, int height, int numCells, PatternType ty
 
       switch (type) {
         case PatternType::Distance:
-          result.setPixel(x, y,
-                          Color(std::sqrt(static_cast<float>(minDistance.getDist2())) /
-                                static_cast<float>(width)));
+          result.setPixel(
+              x, y,
+              Color(static_cast<float>(distanceScaleFactor) *
+                    std::sqrt(static_cast<float>(minDistance.getDist2())) /
+                    static_cast<float>(width)));
           break;
 
         case PatternType::Centre:
@@ -152,11 +154,14 @@ Image generateVoronoiPattern(int width, int height, int numCells, PatternType ty
                                  y - height - myCell.y},
               minAbs);
 
-          result.setPixel(
-              x, y,
-              Color(0.5f + static_cast<float>(xDist) / static_cast<float>(width),
-                    0.5f + static_cast<float>(yDist) / static_cast<float>(height),
-                    0.0f));
+          result.setPixel(x, y,
+                          Color(0.5f + static_cast<float>(distanceScaleFactor) *
+                                           static_cast<float>(xDist) /
+                                           static_cast<float>(width),
+                                0.5f + static_cast<float>(distanceScaleFactor) *
+                                           static_cast<float>(yDist) /
+                                           static_cast<float>(height),
+                                0.0f));
           break;
       }
     }

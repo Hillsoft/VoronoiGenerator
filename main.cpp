@@ -16,8 +16,9 @@ int main(int argc, const char** argv) {
 
     const auto start = std::chrono::steady_clock::now();
 
-    Image image =
-        generateVoronoiPattern(flags.width, flags.height, flags.numCells, flags.patternType, flags.tile);
+    Image image = generateVoronoiPattern(flags.width, flags.height,
+                                         flags.numCells, flags.patternType,
+                                         flags.tile, flags.distanceScaleFactor);
 
     const auto imageComplete = std::chrono::steady_clock::now();
 
