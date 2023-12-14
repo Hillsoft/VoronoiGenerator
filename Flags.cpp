@@ -12,7 +12,7 @@ namespace {
 void printHelp() {
   std::cout << "Usage:" << std::endl;
   std::cout << "  VoronoiGenerator [--help] <outputFile> <width> <height> "
-               "[--numCells=100] [--type=distance] [--tile]"
+               "[--numCells=10] [--type=distance] [--tile]"
             << std::endl;
 }
 
@@ -30,7 +30,7 @@ std::optional<Flags> voronoi::parseFlags(int argc, const char** argv) {
   Flags flags{.width = 1024,
               .height = 1024,
               .outputFile = "out.bmp",
-              .numCells = 100,
+              .numCells = 10,
               .patternType = PatternType::Distance,
               .tile = false};
 
