@@ -9,7 +9,8 @@ enum class PatternType {
   Distance,
   Centre,
   Offset,
-  OffsetRandomRotation
+  OffsetRandomRotation,
+  Border
 };
 
 void printPatternTypeHelp();

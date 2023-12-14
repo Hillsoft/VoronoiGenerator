@@ -9,7 +9,8 @@ const std::map<std::string_view, PatternType> patternTypeNames{
     {"distance", PatternType::Distance},
     {"centre", PatternType::Centre},
     {"offset", PatternType::Offset},
-    {"offsetRandomRotation", PatternType::OffsetRandomRotation}};
+    {"offsetRandomRotation", PatternType::OffsetRandomRotation},
+    {"border", PatternType::Border}};
 
 void printPatternTypeHelp() {
   std::cout << "Available pattern types are:" << std::endl;

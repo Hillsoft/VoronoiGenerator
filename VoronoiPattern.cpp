@@ -84,10 +84,12 @@ std::vector<CellCentre> generateCellCentres(int width, int height, int numCells)
   return result;
 }
 
-// Returns the nearest cell centre and the distance to that centre
-std::pair<CellCentre, DistanceInfo> getNearsetCellCentre(
-    int width, int height, int numCells, std::span<const CellCentre> cellCentres,
-    Point point, bool tile) {
+// Returns the nearest two cell centres and the distance to that centre
+std::pair<std::pair<CellCentre, DistanceInfo>,
+          std::pair<CellCentre, DistanceInfo>>
+getNearsetCellCentre(int width, int height, int numCells,
+                     std::span<const CellCentre> cellCentres, Point point,
+                     bool tile) {
   assert("numCells must match amount of cellCentres",
          cellCentres.size() == sqr(numCells));
 
@@ -96,7 +98,10 @@ std::pair<CellCentre, DistanceInfo> getNearsetCellCentre(
   int pointGridX = numCells * point.x / width;
   int pointGridY = numCells * point.y / height;
 
-  std::pair<CellCentre, DistanceInfo> best{{Point{0, 0}, 0}, maxDist};
+  std::pair<std::pair<CellCentre, DistanceInfo>,
+            std::pair<CellCentre, DistanceInfo>>
+      result{{CellCentre{Point{0, 0}, 0}, maxDist},
+             {CellCentre{Point{0, 0}, 0}, maxDist}};
 
   // We know the nearest cell centre must be in one of the nine nearby grid cells
   for (int gridX = pointGridX - 1; gridX <= pointGridX + 1; gridX++) {
@@ -113,13 +118,16 @@ std::pair<CellCentre, DistanceInfo> getNearsetCellCentre(
 
       DistanceInfo curDist2{xDist2, yDist2};
 
-      if (curDist2 < best.second) {
-        best = {curCellCentre, curDist2};
+      if (curDist2 < result.first.second) {
+        result.second = result.first;
+        result.first = {curCellCentre, curDist2};
+      } else if (curDist2 < result.second.second) {
+        result.second = {curCellCentre, curDist2};
       }
     }
   }
 
-  return best;
+  return result;
 }
 
 }  // namespace
@@ -133,8 +141,16 @@ Image generateVoronoiPattern(int width, int height, int numCells, PatternType ty
 
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
-      auto [myCell, minDistance] = getNearsetCellCentre(
+      std::pair<std::pair<CellCentre, DistanceInfo>,
+                std::pair<CellCentre, DistanceInfo>> closestCellResult =
+          getNearsetCellCentre(
           width, height, numCells, cellCentres, {x, y}, tile);
+
+      CellCentre& myCell = closestCellResult.first.first;
+      DistanceInfo& minDistance = closestCellResult.first.second;
+
+      CellCentre& secondCell = closestCellResult.second.first;
+      DistanceInfo& secondDistance = closestCellResult.second.second;
 
       switch (type) {
         case PatternType::Distance:
@@ -151,6 +167,14 @@ Image generateVoronoiPattern(int width, int height, int numCells, PatternType ty
               Color(static_cast<float>(myCell.location.x) / static_cast<float>(width),
                     static_cast<float>(myCell.location.y) / static_cast<float>(height),
                     0.0f));
+          break;
+
+        case PatternType::Border:
+          result.setPixel(
+              x, y,
+              Color(abs(sqrt(static_cast<float>(minDistance.getDist2())) -
+                        sqrt(static_cast<float>(secondDistance.getDist2()))) /
+                    2.0f));
           break;
 
         case PatternType::Offset: {
