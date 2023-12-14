@@ -3,6 +3,8 @@
 #include <array>
 #include <ranges>
 
+#include "Assert.h"
+
 namespace voronoi {
 
 namespace {
@@ -10,6 +12,20 @@ namespace {
 template<typename TNum>
 TNum sqr(TNum x) {
   return x * x;
+}
+
+template<typename TNum>
+TNum wraparound(TNum x, TNum interval) {
+  TNum result = x % interval;
+  if (result < 0) {
+    result += interval;
+  }
+  return result;
+}
+
+template<typename TNum>
+TNum wraparoundDist(TNum a, TNum b, TNum interval) {
+  return std::min(wraparound(a - b, interval), wraparound(b - a, interval));
 }
 
 struct Point {
@@ -39,6 +55,41 @@ std::vector<Point> generateCellCentres(int width, int height, int numCells) {
   return result;
 }
 
+// Returns the nearest cell centre and the square of the distance to that centre
+std::pair<Point, int> getNearsetCellCentre(int width, int height, int numCells,
+                           std::span<const Point> cellCentres, Point point, bool tile) {
+  assert("numCells must match amount of cellCentres",
+         cellCentres.size() == sqr(numCells));
+
+  int maxDist2 = sqr(width) + sqr(height);
+
+  int pointGridX = numCells * point.x / width;
+  int pointGridY = numCells * point.y / height;
+
+  std::pair<Point, int> best{Point{0, 0}, maxDist2};
+
+  // We know the nearest cell centre must be in one of the nine nearby grid cells
+  for (int gridX = pointGridX - 1; gridX <= pointGridX + 1; gridX++) {
+    for (int gridY = pointGridY - 1; gridY <= pointGridY + 1; gridY++) {
+      int curGridIndex = wraparound(gridX, numCells) + numCells * wraparound(gridY, numCells);
+      Point curCellCentre = cellCentres[curGridIndex];
+
+      int xDist2 = tile ? sqr(wraparoundDist(curCellCentre.x, point.x, width))
+                        : sqr(point.x - curCellCentre.x);
+      int yDist2 = tile ? sqr(wraparoundDist(curCellCentre.y, point.y, height))
+                        : sqr(point.y - curCellCentre.y);
+
+      int curDist2 = xDist2 + yDist2;
+
+      if (curDist2 < best.second) {
+        best = {curCellCentre, curDist2};
+      }
+    }
+  }
+
+  return best;
+}
+
 }  // namespace
 
 Image generateVoronoiPattern(int width, int height, int numCells, PatternType type, bool tile) {
@@ -50,31 +101,8 @@ Image generateVoronoiPattern(int width, int height, int numCells, PatternType ty
 
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
-      Point myCell{0, 0};
-      int minDistance2 = maxDist;
-      for (const auto& cell : cellCentres) {
-        int curDist2;
-        if (tile) {
-          int xDist2 = std::ranges::min(std::array<int, 3>{x - cell.x,
-                                                           x + width - cell.x,
-                                                           x - width - cell.x} |
-                                        std::views::transform(sqr<int>));
-
-          int yDist2 = std::ranges::min(
-              std::array<int, 3>{y - cell.y, y + height - cell.y,
-                                 y - height - cell.y} |
-              std::views::transform(sqr<int>));
-
-          curDist2 = xDist2 + yDist2;
-        } else {
-          curDist2 = sqr(x - cell.x) + sqr(y - cell.y);
-        }
-
-        if (curDist2 < minDistance2) {
-          myCell = cell;
-          minDistance2 = curDist2;
-        }
-      }
+      auto [myCell, minDistance2] = getNearsetCellCentre(
+          width, height, numCells, cellCentres, {x, y}, tile);
 
       switch (type) {
         case PatternType::Distance:
