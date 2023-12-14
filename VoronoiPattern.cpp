@@ -154,8 +154,8 @@ Image generateVoronoiPattern(int width, int height, int numCells, PatternType ty
 
           result.setPixel(
               x, y,
-              Color(static_cast<float>(xDist) / static_cast<float>(width),
-                    static_cast<float>(yDist) / static_cast<float>(height),
+              Color(0.5f + static_cast<float>(xDist) / static_cast<float>(width),
+                    0.5f + static_cast<float>(yDist) / static_cast<float>(height),
                     0.0f));
           break;
       }
