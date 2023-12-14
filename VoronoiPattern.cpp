@@ -140,10 +140,22 @@ Image generateVoronoiPattern(int width, int height, int numCells, PatternType ty
           break;
 
         case PatternType::Offset:
+          auto minAbs = [](int a, int b) {
+            return (std::abs(a) < std::abs(b));
+          };
+          int xDist = std::ranges::min(
+              std::array<int, 3>{x - myCell.x, x + width - myCell.x,
+                                 x - width - myCell.x},
+              minAbs);
+          int yDist = std::ranges::min(
+              std::array<int, 3>{y - myCell.y, y + height - myCell.y,
+                                 y - height - myCell.y},
+              minAbs);
+
           result.setPixel(
               x, y,
-              Color(std::sqrt(static_cast<float>(minDistance.getXDist2())) / static_cast<float>(width),
-                    std::sqrt(static_cast<float>(minDistance.getYDist2())) / static_cast<float>(height),
+              Color(static_cast<float>(xDist) / static_cast<float>(width),
+                    static_cast<float>(yDist) / static_cast<float>(height),
                     0.0f));
           break;
       }
