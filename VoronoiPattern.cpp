@@ -17,17 +17,34 @@ struct Point {
   int y;
 };
 
+// We divide the image into a grid and each grid cell gets a single cell centre
+std::vector<Point> generateCellCentres(int width, int height, int numCells) {
+  std::vector<Point> result;
+  result.reserve(sqr(numCells));
+
+  for (int i = 0; i < sqr(numCells); i++) {
+    int cellX = i % numCells;
+    int cellY = i / numCells;
+
+    int cellMinX = (cellX * width) / numCells;
+    int cellMaxX = ((cellX + 1) * width) / numCells;
+
+    int cellMinY = (cellY * width) / numCells;
+    int cellMaxY = ((cellY + 1) * width) / numCells;
+
+    result.emplace_back(cellMinX + rand() % (cellMaxX - cellMinX),
+                        cellMinY + rand() % (cellMaxY - cellMinY));
+  }
+
+  return result;
+}
+
 }  // namespace
 
 Image generateVoronoiPattern(int width, int height, int numCells, PatternType type, bool tile) {
   Image result{width, height};
 
-  std::vector<Point> cellCentres;
-  cellCentres.reserve(numCells);
-
-  for (int i = 0; i < numCells; i++) {
-    cellCentres.emplace_back(rand() % width, rand() % height);
-  }
+  std::vector<Point> cellCentres = generateCellCentres(width, height, numCells);
 
   const int maxDist = sqr(width) + sqr(height);
 
